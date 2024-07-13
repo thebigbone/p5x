@@ -1,0 +1,7 @@
+credentials:
+  username: root@pam
+  password: 1234
+
+nodes:
+  - local
+  - home

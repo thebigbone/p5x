@@ -24,8 +24,8 @@ func main() {
 		},
 	}
 
-	username := config.Node.Username
-	password := config.Node.Password
+	username := config.Credentials.Username
+	password := config.Credentials.Password
 
 	credentials := proxmox.Credentials{
 		Username: username,
@@ -36,13 +36,9 @@ func main() {
 		proxmox.WithHTTPClient(&insecureHTTPClient),
 		proxmox.WithCredentials(&credentials),
 	)
-	var node_names []string
 
-	node_names = append(node_names, "local")
-	node_names = append(node_names, "home")
-
-	for i := range node_names {
-		nodes, err := client.Node(context.TODO(), node_names[i])
+	for _, val := range config.Nodes {
+		nodes, err := client.Node(context.TODO(), val)
 		if err != nil {
 			panic(err)
 		}

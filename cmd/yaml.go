@@ -7,10 +7,12 @@ import (
 )
 
 type Config struct {
-	Node struct {
+	Credentials struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
-	} `yaml:"node"`
+	} `yaml:"credentials"`
+
+	Nodes []string `yaml:"nodes"`
 }
 
 func parseConfig(filePath string) (*Config, error) {
