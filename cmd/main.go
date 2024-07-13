@@ -32,7 +32,7 @@ func main() {
 		Password: password,
 	}
 
-	client := proxmox.NewClient("https://192.168.31.102:8006/api2/json",
+	client := proxmox.NewClient(config.Credentials.Url,
 		proxmox.WithHTTPClient(&insecureHTTPClient),
 		proxmox.WithCredentials(&credentials),
 	)

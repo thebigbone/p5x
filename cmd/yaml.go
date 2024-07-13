@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Credentials struct {
+		Url      string `yaml:"url"`
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"credentials"`
