@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"crypto/tls"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -37,12 +35,5 @@ func main() {
 		proxmox.WithCredentials(&credentials),
 	)
 
-	for _, val := range config.Nodes {
-		nodes, err := client.Node(context.TODO(), val)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(nodes.CPUInfo.CPUs)
-	}
+	mapVM(config, client)
 }
