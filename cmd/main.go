@@ -42,11 +42,17 @@ func main() {
 		Usage: "proxmox tui and cli",
 		Commands: []*cli.Command{
 			{
-				Name:    "list",
-				Aliases: []string{"l"},
-				Usage:   "list all VMs with name and id",
+				Name:  "stop",
+				Usage: "stop the VM with name",
 				Action: func(con *cli.Context) error {
-					return mapVM(con, config, client)
+					return stop(con, config, client)
+				},
+			},
+			{
+				Name:  "start",
+				Usage: "start the VM with name",
+				Action: func(con *cli.Context) error {
+					return start(con, config, client)
 				},
 			},
 		},

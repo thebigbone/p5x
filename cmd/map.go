@@ -5,11 +5,10 @@ import (
 	"log"
 
 	"github.com/luthermonson/go-proxmox"
-	"github.com/urfave/cli/v2"
 )
 
-func mapVM(con *cli.Context, config *Config, client *proxmox.Client) error {
-	vmName := con.Args().First()
+func mapVM(vmName string, config *Config, client *proxmox.Client) (*proxmox.VirtualMachine, error) {
+	// vmName := con.Args().First()
 
 	vmMap := make(map[string]proxmox.StringOrUint64)
 
@@ -34,17 +33,10 @@ func mapVM(con *cli.Context, config *Config, client *proxmox.Client) error {
 		if err != nil {
 			log.Fatal(err)
 		}
+		// _, err = vm.Shutdown(context.Background())
 
-		_, err = vm.Shutdown(context.Background())
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// for vmid, name := range vmMap {
-		// 	fmt.Printf("vmname: %s and vmid: %d\n", vmid, name)
-		// }
+		return vm, nil
 	}
 
-	return nil
+	return &proxmox.VirtualMachine{}, nil
 }
