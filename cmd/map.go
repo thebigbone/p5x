@@ -24,11 +24,21 @@ func mapVM(con *cli.Context, config *Config, client *proxmox.Client) error {
 			log.Fatal(err)
 		}
 
-		vmdID := vmMap[vmName]
+		for i := range names {
+			vmMap[names[i].Name] = names[i].VMID
+		}
 
-		for _ = range names {
-			// vmMap[names[i].Name] = names[i].VMID
-			names[vmdID].Stop(context.Background())
+		vmID := vmMap[vmName]
+
+		vm, err := nodes.VirtualMachine(context.Background(), int(vmID))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = vm.Shutdown(context.Background())
+
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		// for vmid, name := range vmMap {
