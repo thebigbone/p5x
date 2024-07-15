@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/luthermonson/go-proxmox"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -35,5 +37,22 @@ func main() {
 		proxmox.WithCredentials(&credentials),
 	)
 
-	mapVM(config, client)
+	app := &cli.App{
+		Name:  "p5x",
+		Usage: "proxmox tui and cli",
+		Commands: []*cli.Command{
+			{
+				Name:    "list",
+				Aliases: []string{"l"},
+				Usage:   "list all VMs with name and id",
+				Action: func(con *cli.Context) error {
+					return mapVM(con, config, client)
+				},
+			},
+		},
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }

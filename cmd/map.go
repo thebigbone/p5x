@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/luthermonson/go-proxmox"
+	"github.com/urfave/cli/v2"
 )
 
-func mapVM(config *Config, client *proxmox.Client) error {
+func mapVM(con *cli.Context, config *Config, client *proxmox.Client) error {
+	vmName := con.Args().First()
+
 	vmMap := make(map[string]proxmox.StringOrUint64)
 
 	for _, val := range config.Nodes {
@@ -22,13 +24,16 @@ func mapVM(config *Config, client *proxmox.Client) error {
 			log.Fatal(err)
 		}
 
-		for i := range names {
-			vmMap[names[i].Name] = names[i].VMID
+		vmdID := vmMap[vmName]
+
+		for _ = range names {
+			// vmMap[names[i].Name] = names[i].VMID
+			names[vmdID].Stop(context.Background())
 		}
 
-		for vmid, name := range vmMap {
-			fmt.Printf("vmname: %s and vmid: %d\n", vmid, name)
-		}
+		// for vmid, name := range vmMap {
+		// 	fmt.Printf("vmname: %s and vmid: %d\n", vmid, name)
+		// }
 	}
 
 	return nil
