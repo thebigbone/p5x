@@ -50,20 +50,43 @@ func start(con *cli.Context, config *Config, client *proxmox.Client) error {
 func info(con *cli.Context, config *Config, client *proxmox.Client) error {
 	vmName := con.Args().First()
 
-	vm, err := mapVM(vmName, config, client)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if vmName == "" {
+		for _, val := range config.Nodes {
+			names, _ := vmNames(client, val)
+			tableDisplay(names)
+		}
+	} else {
 
+		vm, err := mapVM(vmName, config, client)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"VMID", "CPUs", "Disk", "Mem (MB)", "Status", "Uptime"})
+		t.SetStyle(table.StyleLight)
+
+		t.AppendRows([]table.Row{
+			{vm.VMID, vm.CPUs, vm.Disk, vm.VirtualMachineConfig.Memory, vm.Status, vm.Uptime},
+		})
+
+		t.Render()
+	}
+	return nil
+}
+
+func tableDisplay(vm proxmox.VirtualMachines) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"VMID", "CPUs", "Disk", "Mem (MB)", "Status", "Uptime"})
+	t.AppendHeader(table.Row{"VMID", "Name", "CPUs", "Disk", "Mem", "Status", "Uptime"})
 	t.SetStyle(table.StyleLight)
 
-	t.AppendRows([]table.Row{
-		{vm.VMID, vm.CPUs, vm.Disk, vm.VirtualMachineConfig.Memory, vm.Status, vm.Uptime},
-	})
+	for i := range vm {
+		t.AppendRows([]table.Row{
+			{vm[i].VMID, vm[i].Name, vm[i].CPUs, vm[i].Disk, vm[i].Mem, vm[i].Status, vm[i].Uptime},
+		})
+	}
 
 	t.Render()
-	return nil
 }
