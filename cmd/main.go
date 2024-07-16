@@ -55,6 +55,13 @@ func main() {
 					return start(con, config, client)
 				},
 			},
+			{
+				Name:  "info",
+				Usage: "info of the VM",
+				Action: func(con *cli.Context) error {
+					return info(con, config, client)
+				},
+			},
 		},
 	}
 

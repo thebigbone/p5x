@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/luthermonson/go-proxmox"
 	"github.com/urfave/cli/v2"
 )
@@ -42,5 +44,26 @@ func start(con *cli.Context, config *Config, client *proxmox.Client) error {
 		log.Fatal(err)
 	}
 
+	return nil
+}
+
+func info(con *cli.Context, config *Config, client *proxmox.Client) error {
+	vmName := con.Args().First()
+
+	vm, err := mapVM(vmName, config, client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"VMID", "CPUs", "Disk", "Mem (MB)", "Status", "Uptime"})
+	t.SetStyle(table.StyleLight)
+
+	t.AppendRows([]table.Row{
+		{vm.VMID, vm.CPUs, vm.Disk, vm.VirtualMachineConfig.Memory, vm.Status, vm.Uptime},
+	})
+
+	t.Render()
 	return nil
 }

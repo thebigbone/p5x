@@ -8,7 +8,6 @@ import (
 )
 
 func mapVM(vmName string, config *Config, client *proxmox.Client) (*proxmox.VirtualMachine, error) {
-	// vmName := con.Args().First()
 
 	vmMap := make(map[string]proxmox.StringOrUint64)
 
@@ -33,8 +32,6 @@ func mapVM(vmName string, config *Config, client *proxmox.Client) (*proxmox.Virt
 		if err != nil {
 			log.Fatal(err)
 		}
-		// _, err = vm.Shutdown(context.Background())
-
 		return vm, nil
 	}
 
