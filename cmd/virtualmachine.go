@@ -56,37 +56,42 @@ func info(con *cli.Context, config *Config, client *proxmox.Client) error {
 			tableDisplay(names)
 		}
 	} else {
-
 		vm, err := mapVM(vmName, config, client)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		t := table.NewWriter()
-		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"VMID", "CPUs", "Disk", "Mem (MB)", "Status", "Uptime"})
-		t.SetStyle(table.StyleLight)
-
-		t.AppendRows([]table.Row{
-			{vm.VMID, vm.CPUs, vm.Disk, vm.VirtualMachineConfig.Memory, vm.Status, vm.Uptime},
-		})
-
-		t.Render()
+		tableDisplay(vm)
 	}
 	return nil
 }
 
-func tableDisplay(vm proxmox.VirtualMachines) {
+func tableDisplay(x interface{}) {
+	switch vm := x.(type) {
+	case proxmox.VirtualMachines:
+		t := tableHelper()
+
+		for i := range vm {
+			t.AppendRows([]table.Row{
+				{vm[i].VMID, vm[i].Name, vm[i].CPUs, vm[i].Disk, vm[i].Mem, vm[i].Status, vm[i].Uptime},
+			})
+		}
+
+		t.Render()
+	case *proxmox.VirtualMachine:
+		t := tableHelper()
+		t.AppendRows([]table.Row{
+			{vm.VMID, vm.Name, vm.CPUs, vm.Disk, vm.Mem, vm.Status, vm.Uptime},
+		})
+		t.Render()
+	}
+}
+
+func tableHelper() table.Writer {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"VMID", "Name", "CPUs", "Disk", "Mem", "Status", "Uptime"})
 	t.SetStyle(table.StyleLight)
 
-	for i := range vm {
-		t.AppendRows([]table.Row{
-			{vm[i].VMID, vm[i].Name, vm[i].CPUs, vm[i].Disk, vm[i].Mem, vm[i].Status, vm[i].Uptime},
-		})
-	}
-
-	t.Render()
+	return t
 }
