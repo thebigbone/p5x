@@ -42,13 +42,6 @@ func main() {
 		Usage: "proxmox tui and cli",
 		Commands: []*cli.Command{
 			{
-				Name:  "stop",
-				Usage: "stop the VM with name",
-				Action: func(con *cli.Context) error {
-					return stop(con, config, client)
-				},
-			},
-			{
 				Name:  "start",
 				Usage: "start the VM with name",
 				Action: func(con *cli.Context) error {
@@ -56,10 +49,24 @@ func main() {
 				},
 			},
 			{
+				Name:  "stop",
+				Usage: "stop the VM with name",
+				Action: func(con *cli.Context) error {
+					return stop(con, config, client)
+				},
+			},
+			{
 				Name:  "info",
-				Usage: "info of the VM",
+				Usage: "info of the VM(s)",
 				Action: func(con *cli.Context) error {
 					return info(con, config, client)
+				},
+			},
+			{
+				Name:  "shutdown",
+				Usage: "shutdown the VM with name",
+				Action: func(con *cli.Context) error {
+					return shutdown(con, config, client)
 				},
 			},
 		},

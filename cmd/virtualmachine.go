@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/luthermonson/go-proxmox"
@@ -13,15 +12,25 @@ import (
 
 func stop(con *cli.Context, config *Config, client *proxmox.Client) error {
 	vmName := con.Args().First()
-
 	fmt.Printf("stopping %s\n", vmName)
 
-	vm, err := mapVM(vmName, config, client)
+	vm := basicOperationHelper(vmName, con, config, client)
+
+	_, err := vm.Stop(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	_, err = vm.Stop(context.Background())
+	return nil
+}
+
+func shutdown(con *cli.Context, config *Config, client *proxmox.Client) error {
+	vmName := con.Args().First()
+	fmt.Printf("shutting down %s\n", vmName)
+
+	vm := basicOperationHelper(vmName, con, config, client)
+
+	_, err := vm.Shutdown(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,15 +40,11 @@ func stop(con *cli.Context, config *Config, client *proxmox.Client) error {
 
 func start(con *cli.Context, config *Config, client *proxmox.Client) error {
 	vmName := con.Args().First()
-
 	fmt.Printf("starting %s\n", vmName)
 
-	vm, err := mapVM(vmName, config, client)
-	if err != nil {
-		log.Fatal(err)
-	}
+	vm := basicOperationHelper(vmName, con, config, client)
 
-	_, err = vm.Start(context.Background())
+	_, err := vm.Start(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,26 +77,24 @@ func tableDisplay(x interface{}) {
 		t := tableHelper()
 
 		for i := range vm {
+			mem := fmt.Sprintf("%.2f", byteConversion(float64(vm[i].MaxMem)))
+			disk := fmt.Sprintf("%.2f", byteConversion(float64(vm[i].MaxDisk)))
+
 			t.AppendRows([]table.Row{
-				{vm[i].VMID, vm[i].Name, vm[i].CPUs, vm[i].Disk, vm[i].Mem, vm[i].Status, vm[i].Uptime},
+				{vm[i].VMID, vm[i].Name, vm[i].CPUs, disk, mem, vm[i].Status, vm[i].Uptime},
 			})
 		}
 
 		t.Render()
 	case *proxmox.VirtualMachine:
 		t := tableHelper()
+
+		mem := fmt.Sprintf("%.2f", byteConversion(float64(vm.MaxMem)))
+		disk := fmt.Sprintf("%.2f", byteConversion(float64(vm.MaxDisk)))
+
 		t.AppendRows([]table.Row{
-			{vm.VMID, vm.Name, vm.CPUs, vm.Disk, vm.Mem, vm.Status, vm.Uptime},
+			{vm.VMID, vm.Name, vm.CPUs, disk, mem, vm.Status, vm.Uptime},
 		})
 		t.Render()
 	}
-}
-
-func tableHelper() table.Writer {
-	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"VMID", "Name", "CPUs", "Disk", "Mem", "Status", "Uptime"})
-	t.SetStyle(table.StyleLight)
-
-	return t
 }

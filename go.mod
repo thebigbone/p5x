@@ -3,6 +3,7 @@ module p5x
 go 1.22.2
 
 require (
+	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/luthermonson/go-proxmox v0.1.0
 	github.com/urfave/cli/v2 v2.27.2
